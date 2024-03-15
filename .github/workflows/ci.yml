@@ -1,0 +1,29 @@
+name: CI
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - dev
+      - master
+    tags:
+      - "v*"
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - run: pip install uv
+      - run: uv venv
+      - run: uv pip install -e . pytest pytest-cov
+      - run: .venv/bin/pytest -ra -v --cov .
+  Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: pre-commit/action@v3.0.1
