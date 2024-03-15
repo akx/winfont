@@ -33,25 +33,31 @@ xx....xx.
 ### Syntax
 
 To make a FNT file from an FD source file:
+
 ```
-python3 mkwinfont.py -fnt -o <outfile.fnt> <file.fd>
+python -m winfont.mkwinfont -o outfile.fnt file.fd
 ```
 
 To make a FON file from one or more FD source files:
+
 ```
-python3 mkwinfont.py -fon -o <outfile.fon> [-facename <name>] <file1.fd> [<file2.fd> ...]
+python -m winfont.mkwinfont -o outfile.fnt file1.fd file2.fd ...
 ```
-* `-facename <name>` is required if the FD files have different facenames defined within them.  Optional otherwise.
+
+* `--facename <name>` is required if the FD files have different facenames defined within them. Optional otherwise.
 
 To deconstruct either a FNT file or a single-font FON file to an FD source file:
+
 ```
-python3 dewinfont.py -o <outfile.fb> <filename>
+python -m winfont.dewinfont -o outfile.fd filename.fon
 ```
 
 To deconstruct a multi-font FON file to multiple FD source files:
+
 ```
-python3 dewinfont.py -p <prefix> <file.fon>
+python -m winfont.dewinfont --prefix out file.fon
 ```
+
 * Files will be named like so: `<prefix>00.fd`
 
 ## Other font tools

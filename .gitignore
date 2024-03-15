@@ -1,3 +1,5 @@
 *.fd
 *.fon
 *.py[cod]
+.coverage
+htmlcov
