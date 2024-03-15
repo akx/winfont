@@ -45,5 +45,5 @@ def main():
         ap.error(f"Unknown file type: {outfile}")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
