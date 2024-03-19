@@ -2,31 +2,64 @@
 # SPDX-File-CopyrightText: Copyright 2001 Simon Tatham
 """Read and write .FNT font files."""
 
+import struct
+
 from winfont.models import Char, Font
 from winfont.util import asciz, byte, dword, frombyte, fromdword, fromword, word
 
 
 def fnt_bytes_to_font(fnt: bytes) -> Font:
     """Create an internal font description from a .FNT-shaped string."""
-    version = fromword(fnt[0:])
-    ftype = fromword(fnt[0x42:])
+    (
+        version,
+        size,
+        copyright_bytes,
+        ftype,
+        pointsize,
+        res_y,
+        res_x,
+        ascent,
+        inleading,
+        exleading,
+        italic,
+        underline,
+        strikeout,
+        weight,
+        charset,
+        width,
+        height,
+        pitchfamily,
+        avgwidth,
+        maxwidth,
+        firstchar,
+        lastchar,
+        defaultchar,
+        breakchar,
+        widthbytes,
+        deviceptr,
+        off_facename,
+        bitsptr,
+    ) = struct.unpack(
+        "< "
+        "H I 60s "  # version, size, copyright
+        "H H H H "  # ftype, pointsize, res_y, res_x
+        "H H H "  # ascent, inleading, exleading
+        "? ? ? "  # italic, underline, strikeout
+        "H B H H"  # weight, charset, width, height
+        "B H H"  # pitch-and-family, avg width, max width
+        "B B B B"  # first char, last char, default char, break char
+        "H I I I",  # widthbytes, device-ptr, facename-ptr, bits-ptr
+        fnt[:113],
+    )
+
     if ftype & 1:
         raise Exception("This font is a vector font")
-    off_facename = fromdword(fnt[0x69:])
     if off_facename < 0 or off_facename > len(fnt):
         raise Exception("Face name not contained within font data")
+
+    copyright = copyright_bytes.rstrip(b"\0").decode("windows-1252")
     facename = str(asciz(fnt[off_facename:]), encoding="windows-1252")
-    copyright = str(asciz(fnt[6:66] + b"\0"), encoding="windows-1252")
-    pointsize = fromword(fnt[0x44:])
-    ascent = fromword(fnt[0x4A:])
-    inleading = fromword(fnt[0x4C:])
-    exleading = fromword(fnt[0x4E:])
-    height = fromword(fnt[0x58:])
-    italic = frombyte(fnt[0x50:]) != 0
-    underline = frombyte(fnt[0x51:]) != 0
-    strikeout = frombyte(fnt[0x52:]) != 0
-    weight = fromword(fnt[0x53:])
-    charset = frombyte(fnt[0x55:])
+
     # Read the char table.
     if version == 0x200:
         ctstart = 0x76
@@ -35,8 +68,6 @@ def fnt_bytes_to_font(fnt: bytes) -> Font:
         ctstart = 0x94
         ctsize = 6
     chars = [Char(width=0, data=[0] * height) for i in range(256)]
-    firstchar = frombyte(fnt[0x5F:])
-    lastchar = frombyte(fnt[0x60:])
     for i in range(firstchar, lastchar + 1):
         entry = ctstart + ctsize * (i - firstchar)
         w = fromword(fnt[entry:])
@@ -60,12 +91,15 @@ def fnt_bytes_to_font(fnt: bytes) -> Font:
         exleading=exleading,
         facename=facename,
         height=height,
+        res_x=res_x,
         inleading=inleading,
         italic=italic,
         pointsize=pointsize,
         strikeout=strikeout,
         underline=underline,
+        res_y=res_y,
         weight=weight,
+        width=width,
     )
 
 

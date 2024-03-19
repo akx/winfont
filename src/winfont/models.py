@@ -12,8 +12,11 @@ class Font:
     facename: str
     copyright: str
     pointsize: int
+    width: int
     height: int
     ascent: int
+    res_x: int = 0
+    res_y: int = 0
     inleading: int = 0
     exleading: int = 0
     italic: bool = False

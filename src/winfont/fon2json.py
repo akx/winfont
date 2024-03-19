@@ -9,7 +9,18 @@ import sys
 from winfont.helpers import parse_fonts_from_windows
 from winfont.models import Char
 
-STYLE_KEY = ("weight", "copyright", "charset", "italic", "underline", "strikeout", "inleading", "exleading")
+ELIDE_IF_FALSY = (
+    "charset",
+    "copyright",
+    "exleading",
+    "inleading",
+    "italic",
+    "res_x",
+    "res_y",
+    "strikeout",
+    "underline",
+    "weight",
+)
 
 
 def main():
@@ -28,7 +39,7 @@ def main():
                 font_json_data["copyright"] = font_json_data["copyright"].strip()
                 if font_json_data["weight"] == 400:
                     font_json_data.pop("weight")
-                for style_key in STYLE_KEY:
+                for style_key in ELIDE_IF_FALSY:
                     if not font_json_data.get(style_key):
                         font_json_data.pop(style_key, None)
                 font_json_data["chars"] = [pack_char(char) for char in font.chars]
